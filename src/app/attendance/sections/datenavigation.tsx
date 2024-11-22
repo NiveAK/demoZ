@@ -1,15 +1,22 @@
 'use client';
 
 import { useState } from "react";
+import { ViewButtons } from "../components/ViewButtons";
+import { useRouter } from 'next/navigation';
 
 interface DateNavigationProps {
   currentDate: Date;
   setCurrentDate: React.Dispatch<React.SetStateAction<Date>>;
+  view: 'timeline' | 'table' | 'calendar';
+  setView: (view: 'timeline' | 'table' | 'calendar') => void;
 }
 
-import { useRouter } from 'next/navigation';
-
-export function DateNavigation({ currentDate, setCurrentDate }: DateNavigationProps) {
+export function DateNavigation({ 
+  currentDate, 
+  setCurrentDate,
+  view = 'timeline',
+  setView 
+}: DateNavigationProps) {
   const [showCalendar, setShowCalendar] = useState(false);
   const router = useRouter();
 
@@ -27,7 +34,7 @@ export function DateNavigation({ currentDate, setCurrentDate }: DateNavigationPr
 
   const formatDateRange = (date: Date) => {
     const startOfWeek = new Date(date);
-    startOfWeek.setDate(date.getDate() - date.getDay() + 1);
+    startOfWeek.setDate(date.getDate() - date.getDay());
     
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
@@ -66,53 +73,7 @@ export function DateNavigation({ currentDate, setCurrentDate }: DateNavigationPr
         </button>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button 
-          className="p-2 hover:bg-gray-200 rounded"
-          title="List View"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="3" y="4" width="18" height="16" rx="2" ry="2" />
-          </svg>
-        </button>
-        <button 
-          className="p-2 hover:bg-gray-200 rounded"
-          title="Tabular View"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-        <button 
-          className="p-2 hover:bg-gray-200 rounded"
-          title="Calendar View"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="3" y="4" width="18" height="16" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
-        </button>
-        <button 
-          className="p-2 hover:bg-gray-200 rounded"
-          title="Filter"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-        <button 
-          className="p-2 hover:bg-gray-200 rounded"
-          title="More Options"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="12" cy="12" r="1" />
-            <circle cx="19" cy="12" r="1" />
-            <circle cx="5" cy="12" r="1" />
-          </svg>
-        </button>
-      </div>
+      <ViewButtons view={view} setView={setView} />
 
       {showCalendar && (
         <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white rounded-lg shadow-lg z-50">

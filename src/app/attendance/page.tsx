@@ -1,18 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { DateNavigation } from './tabs/datenavigation';
-import { AttendanceTimeline } from './tabs/attendancetimeline';
-import { CheckInSection } from './tabs/checkinsection';
-import { AttendanceSummary } from './tabs/attendancesummary';
+import { useState, useEffect } from 'react';
+import { DateNavigation } from './sections/datenavigation';
+import { CheckInSection } from './sections/checkinsection';
+import { AttendanceSummary } from './sections/attendancesummary';
+import { ViewToggleButtons } from './components/ViewToggleButtons';
 
 export default function AttendancePage() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [view, setView] = useState<'timeline' | 'table' | 'calendar'>('timeline');
   const [checkInStatus, setCheckInStatus] = useState({
     isCheckedIn: false,
     checkInTime: '',
     checkOutTime: null as string | null
   });
+  const [attendanceData, setAttendanceData] = useState([]);
+
+  useEffect(() => {
+    const fetchMonthData = async () => {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+
+      const response = await fetch(`/api/attendance?start=${firstDay.toISOString()}&end=${lastDay.toISOString()}`);
+      const data = await response.json();
+      setAttendanceData(data);
+    };
+
+    fetchMonthData();
+  }, [currentDate]);
 
   const handleCheckInOut = (time: string, isCheckedIn: boolean) => {
     if (isCheckedIn) {
@@ -39,14 +56,22 @@ export default function AttendancePage() {
       <main className="container mx-auto px-4 py-6">
         <DateNavigation 
           currentDate={currentDate} 
-          setCurrentDate={setCurrentDate} 
+          setCurrentDate={setCurrentDate}
+          view={view}
+          setView={setView}
         />
         <CheckInSection 
           date={currentDate} 
           onCheckInOut={handleCheckInOut}
           checkInStatus={checkInStatus} 
         />
-        <AttendanceTimeline currentDate={currentDate} />
+        
+        <ViewToggleButtons 
+          currentDate={currentDate}
+          onDateChange={setCurrentDate}
+          view={view}
+        />
+        
         <AttendanceSummary />
       </main>
     </div>
